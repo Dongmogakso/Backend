@@ -13,18 +13,19 @@ export class AuthService {
   ) {}
 
   async generateToken(email: string): Promise<string> {
+    // token secret key 넣어줘야함
     const token = jwt.sign({ email }, 'your_secret_key', { expiresIn: '1h' });
     return token;
   }
 
-  async validateUser(authDto: AuthDto): Promise<{ isValid: boolean; email?: string }> {
+  async validateUser(authDto: AuthDto): Promise<{ isValid: boolean; email?: string; name?: String }> {
     try {
       const user = await this.userRepository.findOne({
         where: { email: authDto.email, password: authDto.password },
       });
 
       if (user) {
-        return { isValid: true, email: user.email };
+        return { isValid: true, email: user.email, name: user.name };
       } else {
         return { isValid: false };
       }

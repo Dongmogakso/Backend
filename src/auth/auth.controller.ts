@@ -17,6 +17,6 @@ export class AuthController {
 
     const token = this.authService.generateToken(user.email);
 
-    return { token, email: user.email, error_code: 0 };
+    return { token, email: user.email, name: user.name, error_code: 0 };
   }
 }
