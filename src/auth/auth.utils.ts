@@ -7,6 +7,9 @@ import { loginrqDto } from './dto/login_rq.dto';
 import { loginrsfdto } from './dto/login_rs_f.dto';
 import { loginrssdto } from './dto/login_rs_s.dto';
 import * as bcrypt from 'bcrypt';
+import { SignupDto } from './dto/signup.dto';
+import { SignupRsDto } from './dto/signup_rs.dto';
+import { sign } from 'crypto';
 
 @Injectable()
 export class AuthUtils {
@@ -15,14 +18,9 @@ export class AuthUtils {
         private userRepository: Repository<User>,
       ) {}
     async generateToken(email: string): Promise<string> {
-        const token = jwt.sigh({ email }, 'your_secret_key', {expiresIn: '1h' });
+        const token = jwt.sign({ email }, 'your_secret_key', {expiresIn: '1h' });
         return token;
     }
-    async hashPassword(password: string): Promise<string> {
-        const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
-        return hashedPassword;
-      }
     async validateUser(authDto: loginrqDto){
         try {
           const user = await this.userRepository.findOne({
@@ -44,5 +42,22 @@ export class AuthUtils {
         } catch (error) {
           throw new NotFoundException('User not found');
         }
+      }
+      async signup(signupDto: SignupDto){
+        const response_dto = new SignupRsDto();
+        if(await this.userRepository.findOne({where: {email: signupDto.email}})){
+          response_dto.error_code = 1;
+          return response_dto;
+        }
+        const { email, password, name } = signupDto;
+        const hashedPassword = await bcrypt.hash(password, 10); // 비밀번호 해싱
+        const newUser = this.userRepository.create({
+          email,
+          password: hashedPassword, // 해싱된 비밀번호 사용
+          name,
+        });
+        await this.userRepository.save(newUser);
+        response_dto.error_code = 0;
+        return response_dto;
       }
 }
