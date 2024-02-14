@@ -50,10 +50,10 @@ export class AuthUtils {
           return response_dto;
         }
         const { email, password, name } = signupDto;
-        const hashedPassword = await bcrypt.hash(password, 10); // 비밀번호 해싱
+        const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = this.userRepository.create({
           email,
-          password: hashedPassword, // 해싱된 비밀번호 사용
+          password: hashedPassword,
           name,
         });
         await this.userRepository.save(newUser);
