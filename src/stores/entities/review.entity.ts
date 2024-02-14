@@ -1,12 +1,21 @@
-import { Entity, Column, PrimaryGeneratedColumn, UpdateDateColumn, CreateDateColumn } from 'typeorm';
+import { User } from 'src/auth/entity/user.entity';
+import { Entity, Column, PrimaryGeneratedColumn, UpdateDateColumn, CreateDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Store } from './store.entity';
+import { Photo } from './photo.entity';
+import { Comment } from './comment.entity';
 
 @Entity()
 export class Review {
     @PrimaryGeneratedColumn()
     reviewId: number;
     
-    @Column()
-    storeId: number;
+    @ManyToOne(() => Store, store => store.reviews)
+    @JoinColumn({ name: 'storeId' })
+    store: Store;
+
+    @ManyToOne(() => User, user => user.reviews)
+    @JoinColumn({ name: 'userId' })
+    user: User;
 
     @Column()
     title: string;
@@ -23,4 +32,9 @@ export class Review {
     @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
     updatedAt: Date;
 
+    @OneToMany(() => Photo, photo => photo.review)
+    photos: Photo[];
+
+    @OneToMany(() => Comment, comment => comment.review)
+    comments: Comment[];
 }

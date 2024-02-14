@@ -2,7 +2,8 @@ export class CreateStoreReviewDto {
     title: string;
     content: string;
     rating: number;
-    storeId?: number;
+    userId: number;
+    storeId: number;
 
     // photo
-}
+}  

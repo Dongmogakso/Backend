@@ -12,9 +12,14 @@ import { ConfigModule } from '@nestjs/config';
 import { Store } from './stores/entities/store.entity';
 import { Review } from './stores/entities/review.entity';
 import { StoresService } from './stores/stores.service';
+import { Place } from './schedules/entities/place.entity';
+import { Schedule } from './schedules/entities/schedule.entity';
+import { Photo } from './stores/entities/photo.entity';
+import { User } from './auth/entity/user.entity';
+import { Comment } from './stores/entities/comment.entity';
 
 @Module({
-  imports: [AuthModule, StoresModule, SchedulesModule, TypeOrmModule.forFeature([Review]),
+  imports: [AuthModule, StoresModule, SchedulesModule, TypeOrmModule.forFeature([Review, User, Store]),
   ConfigModule.forRoot({
     envFilePath:['.env'],
   }),
@@ -25,7 +30,7 @@ import { StoresService } from './stores/stores.service';
     username : process.env.DB_USER,
     password : process.env.DB_PASS,
     database : process.env.DB_DATABASE,
-    entities  :[Store, Review],
+    entities  :[Store, Review, User, Comment, Photo, Place, Schedule],
     synchronize : true
   }),
 ],
