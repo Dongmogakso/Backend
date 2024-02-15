@@ -1,5 +1,5 @@
-import { User } from 'src/auth/entity/user.entity';
 import { Entity, Column, PrimaryGeneratedColumn, UpdateDateColumn, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { User } from 'src/auth/entity/user.entity';
 import { Review } from './review.entity';
 
 @Entity()
@@ -8,7 +8,7 @@ export class Comment {
     commentId: number;
     
     @Column()
-    content: number;
+    content: string;
 
     @CreateDateColumn({name: 'created_at', type: 'timestamp' })
     createdAt: Date;

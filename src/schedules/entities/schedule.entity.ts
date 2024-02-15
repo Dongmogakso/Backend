@@ -16,7 +16,7 @@ export class Schedule {
     @Column()
     endDate: string;
 
-    @ManyToOne(() => User)
+    @ManyToOne(() => User, user => user.schedules)
     @JoinColumn({name: 'userId'})
     user: User;
 

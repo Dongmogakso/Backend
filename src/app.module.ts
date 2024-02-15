@@ -19,7 +19,7 @@ import { User } from './auth/entity/user.entity';
 import { Comment } from './stores/entities/comment.entity';
 
 @Module({
-  imports: [AuthModule, StoresModule, SchedulesModule, TypeOrmModule.forFeature([Review, User, Store]),
+  imports: [AuthModule, StoresModule, SchedulesModule, TypeOrmModule.forFeature([Review, User, Store, Comment, Photo, Place, Schedule]),
   ConfigModule.forRoot({
     envFilePath:['.env'],
   }),
