@@ -17,6 +17,7 @@ import { Schedule } from './schedules/entities/schedule.entity';
 import { Photo } from './stores/entities/photo.entity';
 import { User } from './auth/entity/user.entity';
 import { Comment } from './stores/entities/comment.entity';
+import { SchedulesService } from './schedules/schedules.service';
 
 @Module({
   imports: [AuthModule, StoresModule, SchedulesModule, TypeOrmModule.forFeature([Review, User, Store, Comment, Photo, Place, Schedule]),
@@ -35,6 +36,6 @@ import { Comment } from './stores/entities/comment.entity';
   }),
 ],
   controllers: [AppController, AuthController, StoresController, SchedulesController],
-  providers: [AppService, StoresService],
+  providers: [AppService, StoresService, SchedulesService],
 })
 export class AppModule {}
