@@ -1,4 +1,4 @@
-import { 
+import {
     Controller,
     Get,
     Post,
@@ -6,8 +6,10 @@ import {
     Patch,
     Param,
     Delete,
-    ParseIntPipe
- } from '@nestjs/common';
+    ParseIntPipe,
+    ValidationPipe,
+    UsePipes
+} from '@nestjs/common';
 import { StoresService } from './stores.service';
 import { CreateStoreReviewDto } from './dto/create-store-review.dto';
 import { Review } from './entities/review.entity';
@@ -16,46 +18,78 @@ import { createReviewCommentDto } from './dto/create-review-comment.dto';
 
 @Controller('stores')
 export class StoresController {
-    constructor(private readonly storesService: StoresService) {}
+    constructor(private readonly storesService: StoresService) { }
 
     // 리뷰 작성
     @Post('/review/:storeId')
-    createReview(@Param('storeId', ParseIntPipe) storeId:number, @Body() createStoreReviewDto: CreateStoreReviewDto) {
-        createStoreReviewDto.storeId = storeId;
+    @UsePipes(ValidationPipe)
+    async createReview(@Param('storeId', ParseIntPipe) storeId: number, @Body() createStoreReviewDto: CreateStoreReviewDto) {
 
-        return this.storesService.createReview(createStoreReviewDto);
+        try {
+            createStoreReviewDto.storeId = storeId;
+            await this.storesService.createReview(createStoreReviewDto);
+            return { errorCode: 0 }
+        }
+        catch (error) {
+            return { errorCode: error.message };
+        }
     }
 
     // 가게 리뷰 목록 조회
     @Get('/reviews/:storeId')
-    getAllReviews(@Param('storeId', ParseIntPipe) storeId:number): Promise<Review[]> {
-        return this.storesService.findAllReview(storeId)
+    async getAllReviews(@Param('storeId', ParseIntPipe) storeId: number) {
+        try {
+            const reviews = await this.storesService.findAllReview(storeId)
+            return reviews
+        }
+        catch (error) {
+            return { errorCode: error.message }
+        }
     }
 
     // 리뷰 상세 조회
     @Get('/review/:reviewId')
-    getOneReview(@Param('reviewId', ParseIntPipe) reviewId:number) {
-        return this.storesService.findOneReview(reviewId)
+    async getOneReview(@Param('reviewId', ParseIntPipe) reviewId: number) {
+        try {
+            const review = await this.storesService.findOneReview(reviewId)
+            return review
+        }
+        catch (error) {
+            return { errorCode: error.message }
+        }
     }
 
     // 리뷰 수정
     @Patch('/review/:reviewId')
-    updateReview(@Param('reviewId', ParseIntPipe) reviewId:number, @Body() updateStoreReviewDto: UpdateStoreReviewDto) {
-        return this.storesService.updateReview(reviewId, updateStoreReviewDto)
+    @UsePipes(ValidationPipe)
+    async updateReview(@Param('reviewId', ParseIntPipe) reviewId: number, @Body() updateStoreReviewDto: UpdateStoreReviewDto) {
+        try {
+            const review = await this.storesService.updateReview(reviewId, updateStoreReviewDto)
+            return review
+        }
+        catch (error) {
+            return { errorCode: error.message }
+        }
     }
 
     // 리뷰 삭제
     @Delete('/review/:reviewId')
-    deleteReview(@Param('reviewId', ParseIntPipe) reviewId:number) {
-        return this.storesService.removeReview(reviewId)
+    async deleteReview(@Param('reviewId', ParseIntPipe) reviewId: number) {
+        try {
+                const review = await this.storesService.removeReview(reviewId)
+                return review
+        }
+        catch (error) {
+            return { errorCode: error.message }
+        }
     }
 
     // 댓글 작성
     @Post('/review/comment/:reviewId')
-    createComment(@Param('reviewId', ParseIntPipe) reviewId:number, @Body() createReviewCommentDto: createReviewCommentDto) {
+    createComment(@Param('reviewId', ParseIntPipe) reviewId: number, @Body() createReviewCommentDto: createReviewCommentDto) {
         return this.storesService.createComment(reviewId, createReviewCommentDto);
     }
-    
+
     // 댓글 수정
     @Patch('/review/comment/:commentId')
     updateComment(@Param('commentId', ParseIntPipe) commentId: number, @Body() createReviewCommentDto: createReviewCommentDto) {
@@ -66,6 +100,6 @@ export class StoresController {
     @Delete('/review/comment/:commentId')
     deleteComment(@Param('commentId', ParseIntPipe) commentId: number) {
         return this.storesService.removeComment(commentId);
-    } 
+    }
 
 }

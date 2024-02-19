@@ -22,40 +22,69 @@ export class StoresService {
         private readonly commentRepository: Repository<Comment>,
     ) { }
 
-    async createReview(reviewDto: CreateStoreReviewDto): Promise<Review> {
+    async createReview(reviewDto: CreateStoreReviewDto): Promise<string | null> {
         const review = new Review();
         review.title = reviewDto.title;
         review.content = reviewDto.content;
         review.rating = reviewDto.rating;
 
         const user = await this.userRepository.findOne({ where: { userId: reviewDto.userId } });
+        if (!user) {
+            throw new Error('해당하는 유저를 찾을 수 없습니다.')
+        }
         review.user = user; // User 엔터티의 인스턴스 설정
 
         const store = await this.storeRepository.findOne({ where: { storeId: reviewDto.storeId } });
+        if (!store) {
+            throw new Error('해당하는 가게를 찾을 수 없습니다.')
+        }
         review.store = store;
 
-        return await this.reviewRepository.save(review);
+        await this.reviewRepository.save(review);
+        return null;
     }
 
     async findAllReview(storeId: number): Promise<Review[]> {
+        const store = await this.storeRepository.findOne({ where: { storeId: storeId } });
+        if (!store) {
+            throw new Error('해당하는 가게를 찾을 수 없습니다.')
+        }
         return await this.reviewRepository.find({ where: { store: { storeId: storeId } } });
     }
 
-    findOneReview(reviewId: number): Promise<Review> {
-        return this.reviewRepository.findOne({ where: { reviewId: reviewId } })
+    async findOneReview(reviewId: number): Promise<Review> {
+        const review = await this.reviewRepository.findOne({ where: { reviewId: reviewId } })
+        if (!review) {
+            throw new Error('해당하는 리뷰를 찾을 수 없습니다.')
+        }
+        return review
     }
 
     async updateReview(reviewId: number, review: UpdateStoreReviewDto) {
         const prevReview = await this.reviewRepository.findOne({ where: { reviewId: reviewId } });
+        if (!prevReview) {
+            throw new Error('해당하는 리뷰를 찾을 수 없습니다.')
+        }
+
         if (review.title === null) { review.title = prevReview.title; }
         if (review.content === null) { review.content = prevReview.content; }
         if (review.rating === null) { review.rating = prevReview.rating; }
 
         let reviewToUpdate = { ...prevReview, ...review };
+
         await this.reviewRepository.save(reviewToUpdate)
     }
 
     async removeReview(reviewId: number): Promise<void> {
+        const review = await this.reviewRepository.findOne({ where: { reviewId: reviewId } })
+        if (!review) {
+            throw new Error('해당하는 리뷰를 찾을 수 없습니다.')
+        }
+        const comments = await this.commentRepository.find({ where: { review: {reviewId: reviewId}}})
+        for (const comment of comments) {
+            this.removeComment(comment.commentId)
+        }
+
         await this.reviewRepository.delete(reviewId)
     }
 
@@ -66,7 +95,7 @@ export class StoresService {
         const review = await this.reviewRepository.findOne({ where: { reviewId: reviewId } });
         comment.review = review; // Review 엔터티의 인스턴스 설정
 
-        const user = await this.userRepository.findOne({ where: {userId: commentDto.userId } });
+        const user = await this.userRepository.findOne({ where: { userId: commentDto.userId } });
         comment.user = user;
 
         return await this.commentRepository.save(comment);

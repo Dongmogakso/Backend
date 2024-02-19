@@ -1,7 +1,15 @@
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+
 export class UpdateStoreReviewDto {
-    title?: string;
-    content?: string;
-    rating?: number;
+    @IsOptional()
+    @IsString()
+    title: string;
+    @IsOptional()
+    @IsString()
+    content: string;
+    @IsOptional()
+    @IsNumber()
+    rating: number;
 
     // photo
 }
