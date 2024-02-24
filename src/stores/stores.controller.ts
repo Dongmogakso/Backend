@@ -76,8 +76,8 @@ export class StoresController {
     @Delete('/review/:reviewId')
     async deleteReview(@Param('reviewId', ParseIntPipe) reviewId: number) {
         try {
-                const review = await this.storesService.removeReview(reviewId)
-                return review
+                await this.storesService.removeReview(reviewId)
+                return { errorCode : 0 }
         }
         catch (error) {
             return { errorCode: error.message }
@@ -88,8 +88,8 @@ export class StoresController {
     @Post('/review/comment/:reviewId')
     async createComment(@Param('reviewId', ParseIntPipe) reviewId: number, @Body() createReviewCommentDto: createReviewCommentDto) {
         try {
-            const comment = await this.storesService.createComment(reviewId, createReviewCommentDto);
-            return comment
+            await this.storesService.createComment(reviewId, createReviewCommentDto);
+            return { errorCode : 0 }
         }
         catch (error) {
             return { errorCode: error.message }
@@ -98,9 +98,9 @@ export class StoresController {
 
     // 댓글 수정
     @Patch('/review/comment/:commentId')
-    updateComment(@Param('commentId', ParseIntPipe) commentId: number, @Body() createReviewCommentDto: createReviewCommentDto) {
+    async updateComment(@Param('commentId', ParseIntPipe) commentId: number, @Body() createReviewCommentDto: createReviewCommentDto) {
         try {
-            const comment = this.storesService.updateComment(commentId, createReviewCommentDto);
+            const comment = await this.storesService.updateComment(commentId, createReviewCommentDto);
             return comment
         }
         catch (error) {
@@ -110,10 +110,10 @@ export class StoresController {
 
     // 댓글 삭제
     @Delete('/review/comment/:commentId')
-    deleteComment(@Param('commentId', ParseIntPipe) commentId: number) {
+    async deleteComment(@Param('commentId', ParseIntPipe) commentId: number) {
         try {
-            const comment = this.storesService.removeComment(commentId)
-            return comment
+            await this.storesService.removeComment(commentId)
+            return { errorCode : 0 }
         }
         catch (error) {
             return { errorCode: error.message }

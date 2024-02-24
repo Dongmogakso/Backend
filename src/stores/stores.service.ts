@@ -30,13 +30,13 @@ export class StoresService {
 
         const user = await this.userRepository.findOne({ where: { userId: reviewDto.userId } });
         if (!user) {
-            throw new Error('해당하는 유저를 찾을 수 없습니다.')
+            throw new Error('2')
         }
         review.user = user; // User 엔터티의 인스턴스 설정
 
         const store = await this.storeRepository.findOne({ where: { storeId: reviewDto.storeId } });
         if (!store) {
-            throw new Error('해당하는 가게를 찾을 수 없습니다.')
+            throw new Error('1')
         }
         review.store = store;
 
@@ -47,7 +47,7 @@ export class StoresService {
     async findAllReview(storeId: number): Promise<Review[]> {
         const store = await this.storeRepository.findOne({ where: { storeId: storeId } });
         if (!store) {
-            throw new Error('0')
+            throw new Error('1')
         }
         return await this.reviewRepository.find({ where: { store: { storeId: storeId } } });
     }
@@ -55,7 +55,7 @@ export class StoresService {
     async findOneReview(reviewId: number): Promise<Review> {
         const review = await this.reviewRepository.findOne({ where: { reviewId: reviewId } })
         if (!review) {
-            throw new Error('해당하는 리뷰를 찾을 수 없습니다.')
+            throw new Error('1')
         }
         return review
     }
@@ -63,7 +63,7 @@ export class StoresService {
     async updateReview(reviewId: number, review: UpdateStoreReviewDto) {
         const prevReview = await this.reviewRepository.findOne({ where: { reviewId: reviewId } });
         if (!prevReview) {
-            throw new Error('해당하는 리뷰를 찾을 수 없습니다.')
+            throw new Error('1')
         }
 
         if (review.title === null) { review.title = prevReview.title; }
@@ -78,7 +78,7 @@ export class StoresService {
     async removeReview(reviewId: number): Promise<void> {
         const review = await this.reviewRepository.findOne({ where: { reviewId: reviewId } })
         if (!review) {
-            throw new Error('해당하는 리뷰를 찾을 수 없습니다.')
+            throw new Error('1')
         }
         const comments = await this.commentRepository.find({ where: { review: {reviewId: reviewId}}})
         for (const comment of comments) {
@@ -93,9 +93,15 @@ export class StoresService {
         comment.content = commentDto.content;
 
         const review = await this.reviewRepository.findOne({ where: { reviewId: reviewId } });
+        if (!review) {
+            throw new Error('1')
+        }
         comment.review = review; // Review 엔터티의 인스턴스 설정
 
         const user = await this.userRepository.findOne({ where: { userId: commentDto.userId } });
+        if (!user) {
+            throw new Error('2')
+        }
         comment.user = user;
 
         return await this.commentRepository.save(comment);
@@ -103,6 +109,9 @@ export class StoresService {
 
     async updateComment(commentId: number, comment: createReviewCommentDto) {
         const prevComment = await this.commentRepository.findOne({ where: { commentId: commentId }, relations: ['user'] });
+        if (!prevComment) {
+            throw new Error('1')
+        }
         if (comment.userId === prevComment.user.userId) {
             let commentToUpdate = { ...prevComment, ...comment };
             await this.commentRepository.save(commentToUpdate);
@@ -110,6 +119,10 @@ export class StoresService {
     }
 
     async removeComment(commentId: number): Promise<void> {
+        const comment = await this.commentRepository.find({ where: { commentId: commentId }})
+        if (!comment) {
+            throw new Error('1')
+        }
         await this.commentRepository.delete(commentId)
     }
 }
