@@ -47,7 +47,7 @@ export class StoresService {
     async findAllReview(storeId: number): Promise<Review[]> {
         const store = await this.storeRepository.findOne({ where: { storeId: storeId } });
         if (!store) {
-            throw new Error('해당하는 가게를 찾을 수 없습니다.')
+            throw new Error('0')
         }
         return await this.reviewRepository.find({ where: { store: { storeId: storeId } } });
     }

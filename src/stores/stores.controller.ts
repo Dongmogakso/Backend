@@ -86,20 +86,38 @@ export class StoresController {
 
     // 댓글 작성
     @Post('/review/comment/:reviewId')
-    createComment(@Param('reviewId', ParseIntPipe) reviewId: number, @Body() createReviewCommentDto: createReviewCommentDto) {
-        return this.storesService.createComment(reviewId, createReviewCommentDto);
+    async createComment(@Param('reviewId', ParseIntPipe) reviewId: number, @Body() createReviewCommentDto: createReviewCommentDto) {
+        try {
+            const comment = await this.storesService.createComment(reviewId, createReviewCommentDto);
+            return comment
+        }
+        catch (error) {
+            return { errorCode: error.message }
+        }
     }
 
     // 댓글 수정
     @Patch('/review/comment/:commentId')
     updateComment(@Param('commentId', ParseIntPipe) commentId: number, @Body() createReviewCommentDto: createReviewCommentDto) {
-        return this.storesService.updateComment(commentId, createReviewCommentDto);
+        try {
+            const comment = this.storesService.updateComment(commentId, createReviewCommentDto);
+            return comment
+        }
+        catch (error) {
+            return { errorCode: error.message }
+        }
     }
 
     // 댓글 삭제
     @Delete('/review/comment/:commentId')
     deleteComment(@Param('commentId', ParseIntPipe) commentId: number) {
-        return this.storesService.removeComment(commentId);
+        try {
+            const comment = this.storesService.removeComment(commentId)
+            return comment
+        }
+        catch (error) {
+            return { errorCode: error.message }
+        }
     }
 
 }
