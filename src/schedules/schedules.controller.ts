@@ -2,12 +2,14 @@ import { Controller, Post, Get, Patch, Body, Delete, Param, ParseIntPipe, ParseU
 import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { SchedulesService } from './schedules.service';
 import { GetSchedulesDto } from './dto/get-schedules.dto';
-import { CreatePlaceDto } from './dto/create-place.dto';
+import { CreatePlaceDto } from './dto/create-place.dto';import { ApiOperation, ApiTags } from '@nestjs/swagger'
 
+@ApiTags('Schedules')
 @Controller('schedules')
 export class SchedulesController {
     constructor(private readonly schedulesService: SchedulesService) {}
-    // 여행 스케쥴 조회
+
+    @ApiOperation({ summary: '여행 스케쥴 조회'})
     @Get('/')
     async getAllSchedules(@Body() getSchedulesDto: GetSchedulesDto) {
         try {
@@ -19,7 +21,7 @@ export class SchedulesController {
         }
     }
 
-    // 여행 스케쥴 세부 조회
+    @ApiOperation({ summary: '여행 스케쥴 세부 조회'})
     @Get('/:scheduleId')
     async getOneSchedule(@Param('scheduleId', ParseIntPipe) scheduleId: number) {
         try {
@@ -31,7 +33,7 @@ export class SchedulesController {
         }
     }
 
-    // 여행 스케쥴 추가
+    @ApiOperation({ summary: '여행 스케쥴 추가'})
     @Post('/')
     async createSchedule(@Body() createScheduleDto: CreateScheduleDto) {
         try {
@@ -43,7 +45,7 @@ export class SchedulesController {
         }
     }
 
-    // 여행 스케쥴에 가게 추가
+    @ApiOperation({ summary: '여행 스케쥴에 가게 추가'})
     @Post('/place/:scheduleId')
     async createPlace (@Param('scheduleId', ParseIntPipe) scheduleId: number, @Body() createPlaceDto: CreatePlaceDto) {
         try {
@@ -55,7 +57,7 @@ export class SchedulesController {
         }
     }
 
-    // 여행 스케쥴 삭제
+    @ApiOperation({ summary: '여행 스케쥴 삭제'})
     @Delete('/:scheduleId')
     async deleteSchedule (@Param('scheduleId', ParseIntPipe) scheduleId: number) {
         try {
@@ -67,7 +69,7 @@ export class SchedulesController {
         }
     }
 
-    // 여행 스케쥴에 가게 삭제
+    @ApiOperation({ summary: '여행 스케쥴에 가게 삭제'})
     @Delete('/place/:placeId')
     async deletePlace (@Param('placeId', ParseIntPipe) placeId: number) {
         try {
