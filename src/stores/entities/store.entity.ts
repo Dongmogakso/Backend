@@ -1,23 +1,29 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, PrimaryColumn } from 'typeorm';
 import { Review } from './review.entity';
 import { Place } from 'src/schedules/entities/place.entity';
 
 @Entity()
 export class Store {
-    @PrimaryGeneratedColumn()
-    storeId: number;
+    @PrimaryColumn()
+    storeId: string;
 
     @Column()
     storeName: string;
 
     @Column()
-    type: string;
+    storeUrl: string;
 
     @Column()
-    location: string;
+    categoryName: string;
 
     @Column()
-    description: string;
+    addressName: string;
+
+    @Column()
+    roadAddressName: string;
+
+    @Column()
+    phone: string;
 
     @OneToMany(() => Review, review => review.store)
     reviews: Review[];

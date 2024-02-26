@@ -7,7 +7,8 @@ import { CreateStoreReviewDto } from './dto/create-store-review.dto';
 import { UpdateStoreReviewDto } from './dto/update-store-review.dto';
 import { Store } from './entities/store.entity';
 import { Comment } from './entities/comment.entity';
-import { createReviewCommentDto } from './dto/create-review-comment.dto';
+import { CreateReviewCommentDto } from './dto/create-review-comment.dto';
+import { UpdateReviewCommentDto } from './dto/update-review-comment.dto';
 
 @Injectable()
 export class StoresService {
@@ -36,15 +37,26 @@ export class StoresService {
 
         const store = await this.storeRepository.findOne({ where: { storeId: reviewDto.storeId } });
         if (!store) {
-            throw new Error('1')
+            const newStore = new Store();
+            newStore.storeId = reviewDto.storeId;
+            newStore.storeName = reviewDto.storeName;
+            newStore.storeUrl = reviewDto.storeUrl;
+            newStore.categoryName = reviewDto.categoryName;
+            newStore.addressName = reviewDto.addressName;
+            newStore.roadAddressName = reviewDto.roadAddressName;
+            newStore.phone = reviewDto.phone;
+            await this.storeRepository.save(newStore);
+            review.store = newStore
         }
-        review.store = store;
+        else {
+            review.store = store;
+        }
 
         await this.reviewRepository.save(review);
         return null;
     }
 
-    async findAllReview(storeId: number): Promise<Review[]> {
+    async findAllReview(storeId: string): Promise<Review[]> {
         const store = await this.storeRepository.findOne({ where: { storeId: storeId } });
         if (!store) {
             throw new Error('1')
@@ -80,7 +92,7 @@ export class StoresService {
         if (!review) {
             throw new Error('1')
         }
-        const comments = await this.commentRepository.find({ where: { review: {reviewId: reviewId}}})
+        const comments = await this.commentRepository.find({ where: { review: { reviewId: reviewId } } })
         for (const comment of comments) {
             this.removeComment(comment.commentId)
         }
@@ -88,7 +100,7 @@ export class StoresService {
         await this.reviewRepository.delete(reviewId)
     }
 
-    async createComment(reviewId: number, commentDto: createReviewCommentDto): Promise<Comment> {
+    async createComment(reviewId: number, commentDto: CreateReviewCommentDto): Promise<Comment> {
         const comment = new Comment();
         comment.content = commentDto.content;
 
@@ -107,19 +119,17 @@ export class StoresService {
         return await this.commentRepository.save(comment);
     }
 
-    async updateComment(commentId: number, comment: createReviewCommentDto) {
+    async updateComment(commentId: number, comment: UpdateReviewCommentDto) {
         const prevComment = await this.commentRepository.findOne({ where: { commentId: commentId }, relations: ['user'] });
         if (!prevComment) {
             throw new Error('1')
         }
-        if (comment.userId === prevComment.user.userId) {
-            let commentToUpdate = { ...prevComment, ...comment };
-            await this.commentRepository.save(commentToUpdate);
-        }
+        let commentToUpdate = { ...prevComment, ...comment };
+        await this.commentRepository.save(commentToUpdate);
     }
 
     async removeComment(commentId: number): Promise<void> {
-        const comment = await this.commentRepository.find({ where: { commentId: commentId }})
+        const comment = await this.commentRepository.find({ where: { commentId: commentId } })
         if (!comment) {
             throw new Error('1')
         }

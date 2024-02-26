@@ -1,19 +1,26 @@
-import { Controller, Post, Get, Patch, Body, Delete, Param, ParseIntPipe, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Body, Delete, Param, ParseIntPipe, Query, ParseUUIDPipe } from '@nestjs/common';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { SchedulesService } from './schedules.service';
 import { GetSchedulesDto } from './dto/get-schedules.dto';
-import { CreatePlaceDto } from './dto/create-place.dto';import { ApiOperation, ApiTags } from '@nestjs/swagger'
+import { CreatePlaceDto } from './dto/create-place.dto';
+import { ApiOperation, ApiTags, ApiResponse } from '@nestjs/swagger'
+import { GetScheduleDetailDto } from './dto/get-schedule-detail.dto';
 
 @ApiTags('Schedules')
 @Controller('schedules')
 export class SchedulesController {
     constructor(private readonly schedulesService: SchedulesService) {}
-
+    
+    @ApiResponse({
+        type: [GetSchedulesDto],
+        description: 'success',
+        status: 200,
+    })
     @ApiOperation({ summary: '여행 스케쥴 조회'})
-    @Get('/')
-    async getAllSchedules(@Body() getSchedulesDto: GetSchedulesDto) {
+    @Get('/all')
+    async getAllSchedules(@Query('userId') userId: number) {
         try {
-            const schedules = await this.schedulesService.findAllSchedules(getSchedulesDto);
+            const schedules = await this.schedulesService.findAllSchedules(userId);
             return schedules
         }
         catch (error) {
@@ -21,6 +28,11 @@ export class SchedulesController {
         }
     }
 
+    @ApiResponse({
+        type: GetScheduleDetailDto,
+        description: 'success',
+        status: 200,
+    })
     @ApiOperation({ summary: '여행 스케쥴 세부 조회'})
     @Get('/:scheduleId')
     async getOneSchedule(@Param('scheduleId', ParseIntPipe) scheduleId: number) {

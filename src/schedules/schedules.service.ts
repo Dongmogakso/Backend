@@ -27,7 +27,7 @@ export class SchedulesService {
 
     async createSchedule(scheduleDto: CreateScheduleDto) {
 
-        if (!scheduleDto.name || scheduleDto.startDate || scheduleDto.endDate) throw new Error("1")
+        if (!scheduleDto.name || !scheduleDto.startDate || !scheduleDto.endDate) throw new Error("1")
 
         const schedule = new Schedule();
         schedule.name = scheduleDto.name;
@@ -42,8 +42,8 @@ export class SchedulesService {
         return await this.scheduleRepository.save(schedule);
     }
 
-    async findAllSchedules(getSchedulesDto: GetSchedulesDto) {
-        return await this.scheduleRepository.find({ where: { user: { userId: getSchedulesDto.userId } } })
+    async findAllSchedules(userId: number) {
+        return await this.scheduleRepository.find({ where: { user: { userId: userId } } })
     }
 
     async findOneSchedule(scheduleId: number) {
@@ -74,8 +74,21 @@ export class SchedulesService {
         place.schedule = schedule;
 
         const store = await this.storeRepository.findOne({ where: { storeId: createPlaceDto.storeId } });
-        if (!store) throw new Error("3")
-        place.store = store;
+        if (!store) {
+            const newStore = new Store();
+            newStore.storeId = createPlaceDto.storeId;
+            newStore.storeName = createPlaceDto.storeName;
+            newStore.storeUrl = createPlaceDto.storeUrl;
+            newStore.categoryName = createPlaceDto.categoryName;
+            newStore.addressName = createPlaceDto.addressName;
+            newStore.roadAddressName = createPlaceDto.roadAddressName;
+            newStore.phone = createPlaceDto.phone;
+            await this.storeRepository.save(newStore);
+            place.store = newStore
+        }
+        else {
+            place.store = store;
+        }
 
         return await this.placeRepository.save(place)
     }
