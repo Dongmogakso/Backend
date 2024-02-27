@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Review } from './entities/review.entity';
-import { User } from 'src/auth/entity/user.entity';
+import { User } from 'src/auth/entities/user.entity';
 import { CreateStoreReviewDto } from './dto/create-store-review.dto';
 import { UpdateStoreReviewDto } from './dto/update-store-review.dto';
 import { Store } from './entities/store.entity';
@@ -29,7 +29,7 @@ export class StoresService {
         review.content = reviewDto.content;
         review.rating = reviewDto.rating;
 
-        const user = await this.userRepository.findOne({ where: { userId: reviewDto.userId } });
+        const user = await this.userRepository.findOne({ where: { uid: reviewDto.userId } });
         if (!user) {
             throw new Error('2')
         }
@@ -110,7 +110,7 @@ export class StoresService {
         }
         comment.review = review; // Review 엔터티의 인스턴스 설정
 
-        const user = await this.userRepository.findOne({ where: { userId: commentDto.userId } });
+        const user = await this.userRepository.findOne({ where: { uid: commentDto.userId } });
         if (!user) {
             throw new Error('2')
         }

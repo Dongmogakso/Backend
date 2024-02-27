@@ -3,7 +3,7 @@ import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { Schedule } from './entities/schedule.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from 'src/auth/entity/user.entity';
+import { User } from 'src/auth/entities/user.entity';
 import { GetSchedulesDto } from './dto/get-schedules.dto';
 import { CreatePlaceDto } from './dto/create-place.dto';
 import { Place } from './entities/place.entity';
@@ -35,7 +35,7 @@ export class SchedulesService {
         schedule.endDate = scheduleDto.endDate;
 
 
-        const user = await this.userRepository.findOne({ where: { userId: scheduleDto.userId } })
+        const user = await this.userRepository.findOne({ where: { uid: scheduleDto.userId } })
         if (!user) throw new Error("2")
         schedule.user = user;
 
@@ -43,7 +43,7 @@ export class SchedulesService {
     }
 
     async findAllSchedules(userId: number) {
-        return await this.scheduleRepository.find({ where: { user: { userId: userId } } })
+        return await this.scheduleRepository.find({ where: { user: { uid: userId } } })
     }
 
     async findOneSchedule(scheduleId: number) {

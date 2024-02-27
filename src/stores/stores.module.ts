@@ -5,7 +5,7 @@ import { Review } from './entities/review.entity';
 import { StoresController } from './stores.controller';
 import { AuthModule } from 'src/auth/auth.module';
 import { Store } from './entities/store.entity';
-import { User } from 'src/auth/entity/user.entity';
+import { User } from 'src/auth/entities/user.entity';
 import { Comment } from './entities/comment.entity';
 import { Photo } from './entities/photo.entity';
 

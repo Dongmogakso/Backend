@@ -1,4 +1,10 @@
+import { ApiProperty } from '@nestjs/swagger';
+
+
 export class SignupRsDto {
-    error_code: number;
-  }
-  
+  @ApiProperty({
+    example: '0',
+    required: true
+  })
+  error_code: number;
+}
