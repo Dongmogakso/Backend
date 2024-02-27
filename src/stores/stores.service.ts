@@ -2,12 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Review } from './entities/review.entity';
-import { User } from 'src/auth/entity/user.entity';
+import { User } from 'src/auth/entities/user.entity';
 import { CreateStoreReviewDto } from './dto/create-store-review.dto';
 import { UpdateStoreReviewDto } from './dto/update-store-review.dto';
 import { Store } from './entities/store.entity';
 import { Comment } from './entities/comment.entity';
-import { createReviewCommentDto } from './dto/create-review-comment.dto';
+import { CreateReviewCommentDto } from './dto/create-review-comment.dto';
+import { UpdateReviewCommentDto } from './dto/update-review-comment.dto';
 
 @Injectable()
 export class StoresService {
@@ -28,26 +29,37 @@ export class StoresService {
         review.content = reviewDto.content;
         review.rating = reviewDto.rating;
 
-        const user = await this.userRepository.findOne({ where: { userId: reviewDto.userId } });
+        const user = await this.userRepository.findOne({ where: { uid: reviewDto.userId } });
         if (!user) {
-            throw new Error('해당하는 유저를 찾을 수 없습니다.')
+            throw new Error('2')
         }
         review.user = user; // User 엔터티의 인스턴스 설정
 
         const store = await this.storeRepository.findOne({ where: { storeId: reviewDto.storeId } });
         if (!store) {
-            throw new Error('해당하는 가게를 찾을 수 없습니다.')
+            const newStore = new Store();
+            newStore.storeId = reviewDto.storeId;
+            newStore.storeName = reviewDto.storeName;
+            newStore.storeUrl = reviewDto.storeUrl;
+            newStore.categoryName = reviewDto.categoryName;
+            newStore.addressName = reviewDto.addressName;
+            newStore.roadAddressName = reviewDto.roadAddressName;
+            newStore.phone = reviewDto.phone;
+            await this.storeRepository.save(newStore);
+            review.store = newStore
         }
-        review.store = store;
+        else {
+            review.store = store;
+        }
 
         await this.reviewRepository.save(review);
         return null;
     }
 
-    async findAllReview(storeId: number): Promise<Review[]> {
+    async findAllReview(storeId: string): Promise<Review[]> {
         const store = await this.storeRepository.findOne({ where: { storeId: storeId } });
         if (!store) {
-            throw new Error('0')
+            throw new Error('1')
         }
         return await this.reviewRepository.find({ where: { store: { storeId: storeId } } });
     }
@@ -55,7 +67,7 @@ export class StoresService {
     async findOneReview(reviewId: number): Promise<Review> {
         const review = await this.reviewRepository.findOne({ where: { reviewId: reviewId } })
         if (!review) {
-            throw new Error('해당하는 리뷰를 찾을 수 없습니다.')
+            throw new Error('1')
         }
         return review
     }
@@ -63,7 +75,7 @@ export class StoresService {
     async updateReview(reviewId: number, review: UpdateStoreReviewDto) {
         const prevReview = await this.reviewRepository.findOne({ where: { reviewId: reviewId } });
         if (!prevReview) {
-            throw new Error('해당하는 리뷰를 찾을 수 없습니다.')
+            throw new Error('1')
         }
 
         if (review.title === null) { review.title = prevReview.title; }
@@ -78,9 +90,9 @@ export class StoresService {
     async removeReview(reviewId: number): Promise<void> {
         const review = await this.reviewRepository.findOne({ where: { reviewId: reviewId } })
         if (!review) {
-            throw new Error('해당하는 리뷰를 찾을 수 없습니다.')
+            throw new Error('1')
         }
-        const comments = await this.commentRepository.find({ where: { review: {reviewId: reviewId}}})
+        const comments = await this.commentRepository.find({ where: { review: { reviewId: reviewId } } })
         for (const comment of comments) {
             this.removeComment(comment.commentId)
         }
@@ -88,28 +100,39 @@ export class StoresService {
         await this.reviewRepository.delete(reviewId)
     }
 
-    async createComment(reviewId: number, commentDto: createReviewCommentDto): Promise<Comment> {
+    async createComment(reviewId: number, commentDto: CreateReviewCommentDto): Promise<Comment> {
         const comment = new Comment();
         comment.content = commentDto.content;
 
         const review = await this.reviewRepository.findOne({ where: { reviewId: reviewId } });
+        if (!review) {
+            throw new Error('1')
+        }
         comment.review = review; // Review 엔터티의 인스턴스 설정
 
-        const user = await this.userRepository.findOne({ where: { userId: commentDto.userId } });
+        const user = await this.userRepository.findOne({ where: { uid: commentDto.userId } });
+        if (!user) {
+            throw new Error('2')
+        }
         comment.user = user;
 
         return await this.commentRepository.save(comment);
     }
 
-    async updateComment(commentId: number, comment: createReviewCommentDto) {
+    async updateComment(commentId: number, comment: UpdateReviewCommentDto) {
         const prevComment = await this.commentRepository.findOne({ where: { commentId: commentId }, relations: ['user'] });
-        if (comment.userId === prevComment.user.userId) {
-            let commentToUpdate = { ...prevComment, ...comment };
-            await this.commentRepository.save(commentToUpdate);
+        if (!prevComment) {
+            throw new Error('1')
         }
+        let commentToUpdate = { ...prevComment, ...comment };
+        await this.commentRepository.save(commentToUpdate);
     }
 
     async removeComment(commentId: number): Promise<void> {
+        const comment = await this.commentRepository.find({ where: { commentId: commentId } })
+        if (!comment) {
+            throw new Error('1')
+        }
         await this.commentRepository.delete(commentId)
     }
 }

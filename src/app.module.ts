@@ -15,7 +15,7 @@ import { StoresService } from './stores/stores.service';
 import { Place } from './schedules/entities/place.entity';
 import { Schedule } from './schedules/entities/schedule.entity';
 import { Photo } from './stores/entities/photo.entity';
-import { User } from './auth/entity/user.entity';
+import { User } from './auth/entities/user.entity';
 import { Comment } from './stores/entities/comment.entity';
 import { SchedulesService } from './schedules/schedules.service';
 
